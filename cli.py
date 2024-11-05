@@ -46,10 +46,17 @@ def print_scan_results(results: List[ScanResult], verbosity: int) -> None:
     for result in results:
         logger.info(f"Host: {result.host}")
         logger.info(f"  State: {result.state}")
+        logger.info(f"  Scan Time: {result.scan_time:.2f} seconds")
         if verbosity > 0:
+            logger.info(f"  OS Guess: {result.os_guess}")
+        if verbosity > 1:
             logger.info("  All Ports:")
             for port in result.ports:
                 logger.info(f"    {port['port']}/tcp - {port['state']} - {port.get('service', 'unknown')}")
+                if verbosity > 2 and port['state'] == 'open':
+                    logger.info(f"      Product: {port.get('product', 'unknown')}")
+                    logger.info(f"      Version: {port.get('version', 'unknown')}")
+                    logger.info(f"      CPE: {port.get('cpe', 'unknown')}")
         else:
             logger.info("  Open Ports:")
             for port in result.ports:
