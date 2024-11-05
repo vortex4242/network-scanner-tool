@@ -1,53 +1,61 @@
 import os
+import json
 import logging
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field, validator
 
-# Default configuration
-DEFAULT_CONFIG = {
-    'API_RATE_LIMIT': 6,  # Maximum calls per minute
-    'CACHE_EXPIRATION': 3600,  # Cache results for 1 hour
-    'MAX_THREADS': 5,  # Maximum number of concurrent scans
-    'DEEP_SCAN': False,  # Whether to perform a deep scan by default
-    'OUTPUT_FORMAT': 'json',  # Default output format (json or csv)
-    'LOG_LEVEL': 'INFO',  # Logging level
-}
+class NetworkScannerConfig(BaseModel):
+    """Configuration model for the Network Scanner."""
+    API_RATE_LIMIT: int = Field(6, ge=1, le=60, description="Maximum API calls per minute")
+    CACHE_EXPIRATION: int = Field(3600, ge=0, description="Cache expiration time in seconds")
+    MAX_THREADS: int = Field(5, ge=1, le=100, description="Maximum number of concurrent scans")
+    DEEP_SCAN: bool = Field(False, description="Whether to perform a deep scan by default")
+    OUTPUT_FORMAT: str = Field("json", description="Default output format (json, csv, or both)")
+    LOG_LEVEL: str = Field("INFO", description="Logging level")
 
-# Try to load configuration from environment variables
-CONFIG = {
-    key: os.environ.get(f'NETWORK_SCANNER_{key}', DEFAULT_CONFIG[key])
-    for key in DEFAULT_CONFIG
-}
+    @validator('OUTPUT_FORMAT')
+    def validate_output_format(cls, v):
+        if v not in ['json', 'csv', 'both']:
+            raise ValueError("OUTPUT_FORMAT must be 'json', 'csv', or 'both'")
+        return v
 
-# Convert types
-CONFIG['API_RATE_LIMIT'] = int(CONFIG['API_RATE_LIMIT'])
-CONFIG['CACHE_EXPIRATION'] = int(CONFIG['CACHE_EXPIRATION'])
-CONFIG['MAX_THREADS'] = int(CONFIG['MAX_THREADS'])
-CONFIG['DEEP_SCAN'] = CONFIG['DEEP_SCAN'].lower() == 'true'
+    @validator('LOG_LEVEL')
+    def validate_log_level(cls, v):
+        if v not in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
+            raise ValueError("LOG_LEVEL must be one of DEBUG, INFO, WARNING, ERROR, or CRITICAL")
+        return v
 
-# Function to get configuration value
-def get_config(key):
-    return CONFIG.get(key, DEFAULT_CONFIG.get(key))
+def load_config() -> NetworkScannerConfig:
+    """Load configuration from environment variables or default values."""
+    config_dict = {}
+    for field in NetworkScannerConfig.__fields__:
+        env_var = f'NETWORK_SCANNER_{field}'
+        if env_var in os.environ:
+            config_dict[field] = os.environ[env_var]
+    
+    return NetworkScannerConfig(**config_dict)
 
-def validate_config():
-    errors = []
-    
-    if CONFIG['API_RATE_LIMIT'] < 1 or CONFIG['API_RATE_LIMIT'] > 60:
-        errors.append("API_RATE_LIMIT must be between 1 and 60")
-    
-    if CONFIG['CACHE_EXPIRATION'] < 0:
-        errors.append("CACHE_EXPIRATION must be non-negative")
-    
-    if CONFIG['MAX_THREADS'] < 1 or CONFIG['MAX_THREADS'] > 100:
-        errors.append("MAX_THREADS must be between 1 and 100")
-    
-    if CONFIG['OUTPUT_FORMAT'] not in ['json', 'csv', 'both']:
-        errors.append("OUTPUT_FORMAT must be 'json', 'csv', or 'both'")
-    
-    if CONFIG['LOG_LEVEL'] not in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
-        errors.append("LOG_LEVEL must be one of DEBUG, INFO, WARNING, ERROR, or CRITICAL")
-    
-    if errors:
-        for error in errors:
-            logging.error(f"Configuration error: {error}")
+def load_config_from_file(file_path: str) -> NetworkScannerConfig:
+    """Load configuration from a JSON file."""
+    try:
+        with open(file_path, 'r') as f:
+            config_dict = json.load(f)
+        return NetworkScannerConfig(**config_dict)
+    except Exception as e:
+        logging.error(f"Error loading configuration from file: {str(e)}")
+        return load_config()
+
+CONFIG = load_config()
+
+def get_config(key: str) -> Any:
+    """Get a configuration value by key."""
+    return getattr(CONFIG, key)
+
+def validate_config() -> bool:
+    """Validate the current configuration."""
+    try:
+        NetworkScannerConfig(**CONFIG.dict())
+        return True
+    except ValueError as e:
+        logging.error(f"Configuration error: {str(e)}")
         return False
-    
-    return True
