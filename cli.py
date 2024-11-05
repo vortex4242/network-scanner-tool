@@ -17,6 +17,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--config', help='Path to configuration file')
     parser.add_argument('--compare', help='Path to previous scan results for comparison')
     parser.add_argument('--output', help='Output file for scan results')
+    parser.add_argument('--verbose', '-v', action='count', default=0, help='Increase output verbosity')
     return parser.parse_args()
 
 async def run_scan(targets: List[str], ports: str) -> List[ScanResult]:
@@ -40,16 +41,23 @@ def load_previous_results(filename: str) -> List[ScanResult]:
         logger.error(f"Error loading previous results from {filename}: {str(e)}")
         return []
 
-def print_scan_results(results: List[ScanResult]) -> None:
+def print_scan_results(results: List[ScanResult], verbosity: int) -> None:
     logger.info("Scan Results:")
     for result in results:
         logger.info(f"Host: {result.host}")
         logger.info(f"  State: {result.state}")
-        logger.info("  Open Ports:")
-        for port in result.ports:
-            if port['state'] == 'open':
-                logger.info(f"    {port['port']}/tcp - {port.get('service', 'unknown')}")
+        if verbosity > 0:
+            logger.info("  All Ports:")
+            for port in result.ports:
+                logger.info(f"    {port['port']}/tcp - {port['state']} - {port.get('service', 'unknown')}")
+        else:
+            logger.info("  Open Ports:")
+            for port in result.ports:
+                if port['state'] == 'open':
+                    logger.info(f"    {port['port']}/tcp - {port.get('service', 'unknown')}")
         logger.info("---")
+
+import time
 
 async def main() -> None:
     setup_logging()
@@ -73,13 +81,17 @@ async def main() -> None:
             return
 
         logger.info(f"Starting scan on targets: {targets}, ports: {ports}")
+        start_time = time.time()
         results = await run_scan(targets, ports)
-        logger.info("Scan completed successfully")
+        end_time = time.time()
+        scan_duration = end_time - start_time
+        logger.info(f"Scan completed successfully in {scan_duration:.2f} seconds")
 
-        print_scan_results(results)
+        print_scan_results(results, args.verbose)
 
         if args.output:
             save_results(results, args.output)
+            logger.info(f"Results saved to {args.output}")
 
         if args.compare:
             previous_results = load_previous_results(args.compare)
