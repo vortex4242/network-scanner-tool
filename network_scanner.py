@@ -1,8 +1,8 @@
 import asyncio
 import random
 from typing import List, Dict, Any
-from models import ScanResult, db
-from config import get_config
+from .models import ScanResult, db
+from .config import get_config
 import logging
 
 logger = logging.getLogger(__name__)
