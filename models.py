@@ -44,4 +44,3 @@ class ScanResult(db.Model):
 
     def __repr__(self):
         return f'<ScanResult {self.id} {self.host}>'
-
