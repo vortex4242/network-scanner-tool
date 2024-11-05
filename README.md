@@ -1,6 +1,21 @@
 # Network Scanner Tool
 
-It is a network scanning tool with user authentication, advanced analysis features, visualization of scan results, real-time updates for ongoing scans, and support for scheduling regular scans.
+A comprehensive network scanning tool with user authentication, advanced analysis features, visualization of scan results, real-time updates for ongoing scans, and support for scheduling regular scans.
+
+## Features
+
+- User authentication
+- Advanced network scanning
+- Result visualization
+- Real-time scan updates
+- Scheduled scans
+
+## Requirements
+
+- Python 3.7+
+- Flask
+- SQLAlchemy
+- Other dependencies (see `requirements.txt`)
 
 ## Installation
 
@@ -61,9 +76,17 @@ Scans can be scheduled via the web interface. Go to your profile page and use th
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+## Testing
+
+To run the tests:
+
+```
+python -m unittest discover tests
+```
+
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
