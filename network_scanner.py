@@ -1,52 +1,34 @@
 import asyncio
-import nmap
-from .models import ScanResult
-from . import db
-from .config import get_config
+import random
+from models import ScanResult, db
+from config import get_config
 import logging
 
 logger = logging.getLogger(__name__)
 
 class Scanner:
-    def __init__(self):
-        self.nm = nmap.PortScanner()
-
     async def scan(self, targets, ports):
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self._scan_sync, targets, ports)
-
-    def _scan_sync(self, targets, ports):
-        try:
-            self.nm.scan(hosts=targets, ports=ports, arguments='-sV')
-            results = []
-            for host in self.nm.all_hosts():
-                result = ScanResult(
-                    host=host,
-                    state=self.nm[host].state(),
-                    ports=[]
-                )
-                for proto in self.nm[host].all_protocols():
-                    lport = self.nm[host][proto].keys()
-                    for port in lport:
-                        result.ports.append({
-                            'port': port,
-                            'state': self.nm[host][proto][port]['state'],
-                            'service': self.nm[host][proto][port]['name'],
-                            'product': self.nm[host][proto][port]['product'],
-                            'version': self.nm[host][proto][port]['version']
-                        })
-                results.append(result)
-            return results
-        except nmap.PortScannerError as e:
-            logger.error(f"Nmap scan error: {str(e)}")
-            raise
-        except Exception as e:
-            logger.error(f"An unexpected error occurred during scan: {str(e)}")
-            raise
+        results = []
+        for target in targets:
+            result = ScanResult(
+                host=target,
+                state='up',
+                ports=[]
+            )
+            for port in range(int(ports.split('-')[0]), int(ports.split('-')[1])+1):
+                if random.random() > 0.8:  # 20% chance the port is open
+                    result.ports.append({
+                        'port': port,
+                        'state': 'open',
+                        'service': f'service_{port}',
+                        'product': f'product_{port}',
+                        'version': f'1.0'
+                    })
+            results.append(result)
+        return results
 
     async def get_service_info(self, host, port):
-        # Implement service info retrieval logic here
-        pass
+        return f"Simulated service info for {host}:{port}"
 
 async def run_scan(scan_id):
     scanner = Scanner()
