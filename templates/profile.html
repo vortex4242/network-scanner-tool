@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Welcome, {{ name }}!
+</h1>
+
+<h2 class="subtitle">Schedule a Scan</h2>
+<form method="POST" action="{{ url_for('main.schedule_scan_route') }}">
+    <div class="field">
+        <label class="label">Cron Expression</label>
+        <div class="control">
+            <input class="input" type="text" name="cron_expression" placeholder="* * * * *">
+        </div>
+        <p class="help">Enter a cron expression to schedule the scan (e.g., "0 * * * *" for hourly scans)</p>
+    </div>
+    <div class="field">
+        <div class="control">
+            <button class="button is-link" type="submit">Schedule Scan</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

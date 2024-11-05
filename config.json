@@ -1,0 +1,9 @@
+
+{
+    "target": "127.0.0.1-10",
+    "output_dir": "/tmp",
+    "max_hosts": 5,
+    "nmap_timeout": 120,
+    "nmap_args": "-p- -T4 --max-retries 1 --max-scan-delay 20",
+    "scan_type": "detailed"
+}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">Network Scan Analysis</h1>
+
+<div class="columns">
+    <div class="column">
+        <h2 class="subtitle">Top 10 Open Ports</h2>
+        <img src="{{ open_ports_chart }}" alt="Top 10 Open Ports">
+    </div>
+    <div class="column">
+        <h2 class="subtitle">Service Distribution</h2>
+        <img src="{{ service_distribution_chart }}" alt="Service Distribution">
+    </div>
+</div>
+
+<h2 class="subtitle">Potential Vulnerabilities</h2>
+<table class="table is-fullwidth">
+    <thead>
+        <tr>
+            <th>Host</th>
+            <th>Port</th>
+            <th>Service</th>
+            <th>Severity</th>
+        </tr>
+    </thead>
+    <tbody id="vulnerabilities-table">
+        {% for vuln in vulnerabilities %}
+        <tr>
+            <td>{{ vuln.host }}</td>
+            <td>{{ vuln.port }}</td>
+            <td>{{ vuln.service }}</td>
+            <td>{{ vuln.severity }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+// This script will update the vulnerabilities table in real-time
+function updateVulnerabilities() {
+    fetch('/api/vulnerabilities')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('vulnerabilities-table');
+            tableBody.innerHTML = '';
+            data.forEach(vuln => {
+                const row = `
+                    <tr>
+                        <td>${vuln.host}</td>
+                        <td>${vuln.port}</td>
+                        <td>${vuln.service}</td>
+                        <td>${vuln.severity}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        });
+}
+
+// Update vulnerabilities every 30 seconds
+setInterval(updateVulnerabilities, 30000);
+</script>
+{% endblock %}

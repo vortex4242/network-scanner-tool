@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Scan Results</h1>
+{% for result in results %}
+<h2>Host: {{ result.host }} ({{ result.state }})</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Port</th>
+            <th>State</th>
+            <th>Service</th>
+            <th>Version</th>
+            <th>Product</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for port in result.ports %}
+        <tr>
+            <td>{{ port.port }}</td>
+            <td>{{ port.state }}</td>
+            <td>{{ port.service }}</td>
+            <td>{{ port.version }}</td>
+            <td>{{ port.product }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+{% endblock %}
