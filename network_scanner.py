@@ -6,17 +6,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import socket
+import time
+
 class ScanResult:
-    def __init__(self, host: str, state: str, ports: List[Dict[str, Any]]):
+    def __init__(self, host: str, state: str, ports: List[Dict[str, Any]], scan_time: float, os_guess: str):
         self.host = host
         self.state = state
         self.ports = ports
+        self.scan_time = scan_time
+        self.os_guess = os_guess
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             'host': self.host,
             'state': self.state,
-            'ports': self.ports
+            'ports': self.ports,
+            'scan_time': self.scan_time,
+            'os_guess': self.os_guess
         }
 
     @classmethod
@@ -24,7 +31,9 @@ class ScanResult:
         return cls(
             host=data['host'],
             state=data['state'],
-            ports=data['ports']
+            ports=data['ports'],
+            scan_time=data['scan_time'],
+            os_guess=data['os_guess']
         )
 
 class Scanner:
@@ -39,20 +48,31 @@ class Scanner:
         results = []
         start_port, end_port = map(int, ports.split('-'))
         for target in targets:
+            start_time = time.time()
             state = 'up' if random.random() > 0.1 else 'down'  # 90% chance the host is up
             open_ports = []
             if state == 'up':
                 for port in range(start_port, end_port + 1):
                     if random.random() > 0.95:  # 5% chance the port is open
+                        service = self._get_random_service()
+                        product = self._get_random_product()
+                        version = f'{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 9)}'
                         open_ports.append({
                             'port': port,
                             'state': 'open',
-                            'service': self._get_random_service(),
-                            'product': self._get_random_product(),
-                            'version': f'{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 9)}'
+                            'service': service,
+                            'product': product,
+                            'version': version,
+                            'cpe': f'cpe:/a:{product.lower()}:{service.lower()}:{version}'
                         })
-            results.append(ScanResult(host=target, state=state, ports=open_ports))
+            scan_time = time.time() - start_time
+            os_guess = self._get_random_os()
+            results.append(ScanResult(host=target, state=state, ports=open_ports, scan_time=scan_time, os_guess=os_guess))
         return results
+
+    def _get_random_os(self) -> str:
+        os_list = ['Windows 10', 'Ubuntu 20.04', 'macOS 11.0', 'CentOS 8', 'Debian 10']
+        return random.choice(os_list)
 
     def _get_random_service(self) -> str:
         services = ['http', 'https', 'ftp', 'ssh', 'smtp', 'pop3', 'imap', 'dns', 'telnet']
