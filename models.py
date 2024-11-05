@@ -1,22 +1,36 @@
-rom flask_login import UserMixin
-from . import db
-import json
+from setuptools import setup, find_packages
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+setup(
+    name='network_scanner_tool',
+    version='0.1',
+    packages=find_packages(),
+    include_package_data=True,
+    install_requires=[
+        'flask',
+        'flask-login',
+        'flask-sqlalchemy',
+        'flask-bcrypt',
+        'matplotlib',
+        'pandas',
+        'apscheduler',
+    ],
+)
 
-class ScanResult(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    host = db.Column(db.String(100))
-    state = db.Column(db.String(20))
-    _ports = db.Column(db.Text)
+    config.json:
 
-    @property
-    def ports(self):
-        return json.loads(self._ports)
-
-    @ports.setter
-    def ports(self, value):
-        self._ports = json.dumps(value)
+{
+    "scanning": {
+        "targets": ["localhost"],
+        "ports": "1-1000",
+        "max_threads": 10,
+        "timeout": 60,
+        "nmap_args": "-sV"
+    },
+    "database": {
+        "uri": "sqlite:///network_scanner.db"
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "network_scanner.log"
+    }
+}
