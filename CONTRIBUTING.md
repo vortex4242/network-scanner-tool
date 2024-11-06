@@ -1,60 +1,58 @@
 
 # Contributing to Network Scanner
 
-We love your input! We want to make contributing to this project as easy and transparent as possible, whether it's:
+We appreciate your interest in contributing to the Network Scanner project! Your contributions help make this tool more robust and useful for the community.
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
-- Becoming a maintainer
+## Getting Started
 
-## We Develop with Github
+1. Fork the repository on GitHub: https://github.com/vortex4242/network-scanner
+2. Clone your fork locally:
+   ```
+   git clone https://github.com/your-username/network-scanner.git
+   cd network-scanner
+   ```
+3. Create a branch for your feature or bug fix:
+   ```
+   git checkout -b feature/your-feature-name
+   ```
 
-We use github to host code, to track issues and feature requests, as well as accept pull requests.
+## Making Changes
 
-## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
+1. Make your changes in your feature branch.
+2. Add or update tests as necessary.
+3. Run the test suite to ensure all tests pass.
+4. Update the documentation if you've made changes to the functionality.
 
-Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:
+## Code Style
 
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes.
-5. Make sure your code lints.
-6. Issue that pull request!
+- Follow PEP 8 guidelines for Python code.
+- Use 4 spaces for indentation (no tabs).
+- Run `pylint` on your code to check for style issues.
 
-## Any contributions you make will be under the MIT Software License
+## Submitting Changes
 
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
+1. Push your changes to your fork on GitHub.
+2. Submit a pull request to the main repository.
+3. Describe your changes in detail in the pull request description.
+4. Link any relevant issues in the pull request description.
 
-## Report bugs using Github's [issues](https://github.com/yourusername/network-scanner/issues)
+## Reporting Bugs
 
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/yourusername/network-scanner/issues/new); it's that easy!
+- Use the GitHub issue tracker to report bugs.
+- Describe the bug in detail, including steps to reproduce.
+- Include information about your environment (OS, Python version, etc.).
 
-## Write bug reports with detail, background, and sample code
+## Requesting Features
 
-**Great Bug Reports** tend to have:
+- Use the GitHub issue tracker to suggest new features.
+- Explain the feature in detail and why it would be beneficial.
 
-- A quick summary and/or background
-- Steps to reproduce
-  - Be specific!
-  - Give sample code if you can.
-- What you expected would happen
-- What actually happens
-- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+## Code of Conduct
 
-People *love* thorough bug reports. I'm not even kidding.
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms.
 
-## Use a Consistent Coding Style
+## Questions?
 
-* 4 spaces for indentation rather than tabs
-* You can try running `pylint` for style unification
+If you have any questions about contributing, please open an issue in the GitHub repository.
 
-## License
-
-By contributing, you agree that your contributions will be licensed under its MIT License.
-
-## References
-
-This document was adapted from the open-source contribution guidelines for [Facebook's Draft](https://github.com/facebook/draft-js/blob/a9316a723f9e918afde44dea68b5f9f39b7d9b00/CONTRIBUTING.md)
+Thank you for your contributions to the Network Scanner project!
