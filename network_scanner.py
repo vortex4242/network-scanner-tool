@@ -31,61 +31,136 @@ class ScanResult:
         }
 
 class Scanner:
+    def _extract_tcp_options(self, options: bytes) -> Dict[str, Any]:
+        i = 0
+        extracted_options = {}
+        while i < len(options) and i < 40:  # Limit to first 40 bytes to avoid application data
+            if i + 1 >= len(options):
+                break
+            opt_type = options[i]
+            opt_length = options[i+1] if opt_type != 1 else 1  # NOP has no length field
+
+            if opt_type == 0:  # End of options
+                break
+            elif opt_type == 1:  # NOP
+                i += 1
+                continue
+            elif opt_type == 2 and opt_length == 4:  # MSS
+                extracted_options['MSS'] = struct.unpack('!H', options[i+2:i+4])[0]
+            elif opt_type == 3 and opt_length == 3:  # Window Scale
+                extracted_options['WScale'] = options[i+2]
+            elif opt_type == 4 and opt_length == 2:  # SACK Permitted
+                extracted_options['SACK'] = True
+            elif opt_type == 8 and opt_length == 10:  # Timestamp
+                extracted_options['Timestamp'] = struct.unpack('!II', options[i+2:i+10])
+
+            i += opt_length
+
+        return extracted_options
+
+    def _guess_os(self, ttl: int, window_size: int, options: Dict[str, Any]) -> str:
+        if ttl == 56:
+            return f"Possible CDN or Load Balancer (Facebook/Google infrastructure) - Window Size: {window_size}"
+        elif ttl == 64:
+            if window_size == 65535:
+                return "FreeBSD or OpenBSD"
+            elif window_size in [5840, 14600, 29200]:
+                return "Linux (kernel 2.4 and 2.6)"
+            elif window_size == 16384:
+                return "macOS (OS X)"
+            elif window_size == 512:
+                return "Linux (possibly virtualized)"
+            elif window_size == 53270:
+                return "Linux (possibly localhost)"
+        elif ttl == 128:
+            if window_size == 65535:
+                return "Windows Server 2008, Vista, or 7"
+            elif window_size == 8192:
+                return "Windows 2000 or XP"
+            elif window_size == 16384:
+                return "Windows 2003 or 2008"
+        elif ttl == 255:
+            if window_size == 65535:
+                return "Solaris or AIX"
+            elif window_size == 4128:
+                return "Cisco IOS"
+            elif window_size == 53270:
+                return "Linux (localhost)"
+        
+        if 'MSS' in options:
+            mss = options['MSS']
+            if mss == 1460:
+                return f"Ethernet MTU (Windows or Linux) - TTL: {ttl}, Window Size: {window_size}"
+            elif mss == 1380:
+                return f"OpenBSD or NetBSD (Ethernet) - TTL: {ttl}, Window Size: {window_size}"
+            elif mss == 1440:
+                return f"Google server (GWS) - TTL: {ttl}, Window Size: {window_size}"
+        
+        return f"Unknown OS (TTL: {ttl}, Window Size: {window_size}, Options: {options})"
+
+    async def _get_service_version(self, target: str, port: int) -> str:
+        try:
+            reader, writer = await asyncio.open_connection(target, port)
+            writer.write(b"HEAD / HTTP/1.0\r\n\r\n")
+            await writer.drain()
+            response = await reader.read(1024)
+            writer.close()
+            await writer.wait_closed()
+            
+            response_str = response.decode('utf-8', errors='ignore')
+            server_header = next((line for line in response_str.splitlines() if line.startswith("Server:")), None)
+            if server_header:
+                return server_header.split("Server:")[1].strip()
+            return "Unknown"
+        except Exception as e:
+            logger.error(f"Error getting service version for {target}:{port}: {str(e)}")
+            return "Unknown"
+
     async def scan_port(self, target: str, port: int) -> Dict[str, Any] | None:
         try:
             conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             conn.settimeout(1)
-            result = await asyncio.wait_for(
-                asyncio.get_event_loop().run_in_executor(None, lambda: conn.connect_ex((target, port))),
-                timeout=2
+            result = await asyncio.get_event_loop().run_in_executor(
+                None, lambda: conn.connect_ex((target, port))
             )
             if result == 0:
-                # Additional check: try to receive data
-                conn.settimeout(0.5)
-                try:
-                    conn.send(b"\r\n")
-                    response = conn.recv(1024)
-                    if response:  # Only consider the port open if we receive data
-                        service = self._get_service_name(port)
-                        return {
-                            'port': port,
-                            'state': 'open',
-                            'service': service,
-                            'product': 'Unknown',
-                            'version': 'Unknown',
-                            'cpe': 'Unknown'
-                        }
-                except:
-                    pass
+                service = self._get_service_name(port)
+                version = await self._get_service_version(target, port)
+                return {
+                    'port': port,
+                    'state': 'open',
+                    'service': service,
+                    'version': version
+                }
             conn.close()
-        except asyncio.TimeoutError:
-            return {'port': port, 'state': 'timeout'}
         except Exception as e:
             logger.error(f"Error scanning port {target}:{port}: {str(e)}")
         return None
 
+    @staticmethod
+    def get_common_ports() -> List[int]:
+        return [21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 993, 995, 1723, 3306, 3389, 5900, 8080]
+
     async def scan(self, targets: List[str], ports: str) -> List[ScanResult]:
         results = []
         start_port, end_port = map(int, ports.split('-'))
+        common_ports = self.get_common_ports()
         for target in targets:
             logger.info(f"Scanning target: {target}")
             start_time = time.time()
             state = 'up'  # Assume the host is up if we can scan it
             open_ports = []
-            timeouts = 0
-            closed_ports = 0
             
-            tasks = [self.scan_port(target, port) for port in range(start_port, end_port + 1)]
-            port_results = await asyncio.gather(*tasks)
-            for result in port_results:
-                if result:
-                    if result['state'] == 'open':
-                        open_ports.append(result)
-                        logger.info(f"Open port found: {target}:{result['port']}")
-                    elif result['state'] == 'timeout':
-                        timeouts += 1
-                else:
-                    closed_ports += 1
+            # Scan common ports first
+            common_port_tasks = [self.scan_port(target, port) for port in common_ports if start_port <= port <= end_port]
+            common_port_results = await asyncio.gather(*common_port_tasks)
+            open_ports.extend([result for result in common_port_results if result])
+            
+            # Scan remaining ports
+            remaining_ports = [port for port in range(start_port, end_port + 1) if port not in common_ports]
+            remaining_port_tasks = [self.scan_port(target, port) for port in remaining_ports]
+            remaining_port_results = await asyncio.gather(*remaining_port_tasks)
+            open_ports.extend([result for result in remaining_port_results if result])
             
             scan_time = time.time() - start_time
             os_guess = await self._get_os_guess(target)
@@ -100,8 +175,8 @@ class Scanner:
                 open_ports = []  # Clear the list of open ports for filtered hosts
             
             result = ScanResult(host=target, state=state, ports=open_ports, scan_time=scan_time, os_guess=os_guess)
+            logger.info(f"Scan completed for {target}. Time taken: {scan_time:.2f} seconds. State: {state}")
             results.append(result)
-            logger.info(f"Scan completed for {target}. Time taken: {scan_time:.2f} seconds. State: {state}, Open ports: {len(open_ports)}, Closed ports: {closed_ports}, Timeouts: {timeouts}")
         
         return results
 
