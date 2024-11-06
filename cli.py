@@ -3,10 +3,10 @@ import asyncio
 import json
 from typing import List, Any
 
-from .config import NetworkScannerConfig, get_config, validate_config
-from .network_scanner import Scanner, ScanResult
-from .scan_comparison import compare_scan_results
-from .logging_config import setup_logging, get_logger
+from config import NetworkScannerConfig, get_config, validate_config
+from network_scanner import Scanner, ScanResult
+from scan_comparison import compare_scan_results
+from logging_config import setup_logging, get_logger
 
 logger = get_logger(__name__)
 
