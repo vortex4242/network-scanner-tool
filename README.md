@@ -15,7 +15,7 @@ A Python-based network scanner with OS detection capabilities.
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/network-scanner.git
+   git clone https://github.com/vortex4242/network-scanner.git
    cd network-scanner
    ```
 
