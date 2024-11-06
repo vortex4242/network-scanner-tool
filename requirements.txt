@@ -10,3 +10,4 @@ pydantic==1.10.9
 aiohttp==3.8.4
 Werkzeug==2.2.3
 tzlocal==5.2
+scapy==2.5.0
