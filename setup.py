@@ -1,4 +1,3 @@
-
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -7,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="network-scanner",
     version="0.1.0",
-    author="Vortex4242",
+    author="Kiril Ivanov",
     author_email="kirilivanov1312@protonmail.com",
     description="A comprehensive Python-based network scanner with advanced OS detection capabilities",
     long_description=long_description,
