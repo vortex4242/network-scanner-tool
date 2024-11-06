@@ -1,12 +1,19 @@
-
 # Network Scanner
+
+
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/vortex4242/network-scanner/releases)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://www.python.org/downloads/)
+[![Build Status](https://img.shields.io/badge/build-unknown-lightgrey.svg)](https://github.com/vortex4242/network-scanner/actions)
+[![Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey.svg)](https://github.com/vortex4242/network-scanner)
+
 
 ## Author and Contacts
 
 Kiril Ivanov
 
 - Email: kirilivanov1312@protonmail.com
-- Facebook: [Kiril Ivanov](https://www.facebook.com/exploitdb1312420)
+- Facebook: [Kiril Ivanov](https://www.facebook.com/kiril.ivanov.actual.profile)
 - GitHub: [vortex4242](https://github.com/vortex4242)
 
 For questions, suggestions, or issues, please contact me via email or open an issue in the [GitHub repository](https://github.com/vortex4242/network-scanner/issues).
