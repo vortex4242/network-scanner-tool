@@ -102,3 +102,95 @@ This tool is intended for ethical use on networks for which you have permission 
    git clone https://github.com/vortex4242/network-scanner.git
 
    cd network-scanner
+
+
+# Advanced Usage and Contribution Guidelines
+
+## Advanced Usage
+
+### Custom Port Ranges
+
+You can specify custom port ranges using the `-p` or `--ports` option. For example:
+
+```
+sudo python3 network_scanner.py -t 192.168.1.1 -p 1-1000,2000-3000
+```
+
+This will scan ports 1-1000 and 2000-3000.
+
+### Output Formatting
+
+By default, the scanner outputs results to the console. You can save results to a JSON file using the `-o` or `--output` option:
+
+```
+sudo python3 network_scanner.py -t 192.168.1.1 -o results.json
+```
+
+### Verbose Mode
+
+Use the `-v` or `--verbose` flag for detailed output during scanning:
+
+```
+sudo python3 network_scanner.py -t 192.168.1.1 -v
+```
+
+### Scanning Multiple Targets
+
+You can scan multiple targets by specifying them as a space-separated list:
+
+```
+sudo python3 network_scanner.py -t 192.168.1.1 192.168.1.2 10.0.0.1
+```
+
+## Contributing
+
+### Setting Up Development Environment
+
+1. Fork the repository on GitHub.
+2. Clone your fork locally:
+   ```
+   git clone https://github.com/your-username/network-scanner.git
+   cd network-scanner
+   ```
+3. Create a virtual environment and install dependencies:
+   ```
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+### Running Tests
+
+Run the test suite using:
+
+```
+python -m unittest discover tests
+```
+
+### Adding New Features
+
+1. Create a new branch for your feature:
+   ```
+   git checkout -b feature/your-feature-name
+   ```
+2. Implement your feature and add tests.
+3. Run the test suite to ensure all tests pass.
+4. Update the README.md and CHANGELOG.md files as necessary.
+5. Commit your changes and push to your fork.
+6. Open a pull request with a clear title and description.
+
+### Coding Style
+
+- Follow PEP 8 guidelines for Python code.
+- Use meaningful variable and function names.
+- Add docstrings to functions and classes.
+- Comment your code where necessary.
+
+### Reporting Issues
+
+- Use the GitHub issue tracker to report bugs.
+- Provide a clear and descriptive title.
+- Include steps to reproduce the issue.
+- Mention your operating system and Python version.
+
+Thank you for contributing to the Network Scanner project!
