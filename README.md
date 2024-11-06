@@ -7,10 +7,6 @@
 
 [![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://www.python.org/downloads/)
 
-[![Build Status](https://img.shields.io/badge/build-unknown-lightgrey.svg)](https://github.com/vortex4242/network-scanner/actions)
-
-[![Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey.svg)](https://github.com/vortex4242/network-scanner)
-
 
 ## Author and Contacts
 
