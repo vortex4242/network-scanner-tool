@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field, validator
 
 class NetworkScannerConfig(BaseModel):
@@ -12,6 +12,8 @@ class NetworkScannerConfig(BaseModel):
     DEEP_SCAN: bool = Field(False, description="Whether to perform a deep scan by default")
     OUTPUT_FORMAT: str = Field("json", description="Default output format (json, csv, or both)")
     LOG_LEVEL: str = Field("INFO", description="Logging level")
+    SCAN_TARGETS: List[str] = Field(["localhost"], description="Default targets to scan")
+    SCAN_PORTS: str = Field("1-1000", description="Default ports to scan")
 
     @validator('OUTPUT_FORMAT')
     def validate_output_format(cls, v):
