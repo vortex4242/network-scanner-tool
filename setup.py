@@ -1,31 +1,39 @@
+
 from setuptools import setup, find_packages
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
 
 setup(
-    name='network_scanner_tool',
-    version='0.2',
+    name="network-scanner",
+    version="0.1.0",
+    author="Vortex4242",
+    author_email="kirilivanov1312@protonmail.com",
+    description="A comprehensive Python-based network scanner with advanced OS detection capabilities",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/vortex4242/network-scanner",
     packages=find_packages(),
-    include_package_data=True,
-    install_requires=requirements,
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+    ],
+    python_requires=">=3.7",
+    install_requires=[
+        "aiohttp==3.8.4",
+        "pydantic==1.10.9",
+        "asyncio==3.4.3",
+        "scapy==2.5.0",
+    ],
     entry_points={
-        'console_scripts': [
-            'network-scanner=network_scanner_tool.cli:main',
+        "console_scripts": [
+            "network-scanner=network_scanner:main",
         ],
     },
-    author='Kiril Ivanov',
-    author_email='kiril.ivanov@example.com',
-    description='A comprehensive network scanning tool with user authentication, advanced analysis features, and scheduled scans.',
-    long_description=open('README.md').read(),
-    long_description_content_type='text/markdown',
-    url='https://github.com/vortex4242/network-scanner-tool',
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-    ],
 )
